@@ -12,7 +12,7 @@ The sandbox uses provider simulators — no real money and no real bank account 
 
 1. Issue a sub-account, then replay the identical idempotent request.
 2. Attempt the same idempotency key with a changed body → `IDEMPOTENCY_KEY_REUSED`.
-3. Simulate a deposit; verify webhook, balance, and transaction.
+3. Simulate a deposit against a sub-account's `account_number`; verify webhook, balance, and transaction.
 4. Create a successful payout and wait for `payout.success`.
 5. Create a failed payout (amount ending `.01`) and verify hold release.
 6. Create a pre-settlement reversal (amount ending `.02`) and verify hold release.

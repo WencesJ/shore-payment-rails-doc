@@ -75,6 +75,10 @@ Content-Type: application/json
 }
 ```
 
+An account number is held by at most one active virtual account. Numbers belonging to expired or closed accounts return to the pool and may be issued again, so treat the number as the address of a *currently active* account rather than a permanent identifier for a customer — use `external_ref` or `id` for that.
+
+In the rare case Shore cannot settle on a free number, issuance fails with `ACCOUNT_NUMBER_UNAVAILABLE` (409). Retry with the same idempotency key.
+
 ### Verification
 
 Shore verifies both BVN and NIN, and they must resolve to the same identity. The verified provider identity is authoritative — submitted names are not trusted as the final legal identity.

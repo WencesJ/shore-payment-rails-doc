@@ -39,6 +39,7 @@ Endpoint validation currently accepts `balance.threshold`, but do not depend on 
 ```json
 {
   "id": "<deposit-id>",
+  "status": "SETTLED",
   "virtual_account_id": "<virtual-account-id>",
   "owner_type": "SUB_ACCOUNT",
   "external_ref": "customer-001",
@@ -46,11 +47,20 @@ Endpoint validation currently accepts `balance.threshold`, but do not depend on 
   "fee": "100",
   "net": "99900",
   "asset": "NGN",
-  "bank_reference": "<provider-reference>"
+  "bank_reference": "<provider-reference>",
+  "virtual_account_number": "9012345678",
+  "sender_name": "ADA LOVELACE",
+  "sender_account_number": "0123456789",
+  "sender_bank_name": "Example Bank",
+  "sender_bank_code": "000017"
 }
 ```
 
+`virtual_account_number` is the account the payer credited. The four `sender_*` fields are the payer details exactly as the bank reported them, and any of them is `null` when the provider omits it — treat them as advisory, never as an authorisation signal. In sandbox the simulator reports `SANDBOX PAYER` on account `0000000001` at `Sandbox Bank` so the fields are exercised end to end.
+
 For a vault deposit, `owner_type` is `MERCHANT` and `external_ref` is `null`.
+
+`status` is always `SETTLED`. The event is written inside the same transaction that posts the ledger journal, so a `deposit.received` never exists for a deposit that did not settle — there is no failure counterpart for deposits the way payouts have `payout.failed` and `payout.reversed`.
 
 ## Signature verification
 
@@ -123,11 +133,22 @@ Authorization: Bearer <api-key>
       "status": "EXHAUSTED",
       "attempts": 6,
       "last_response_status": 503,
+      "last_error": "HTTP 503",
       "next_retry_at": null
     }
   ]
 }
 ```
+
+`last_error` carries the reason for the most recent failed attempt. When `last_response_status` is `null` the request never reached your endpoint at all — the message names the cause, and the common ones are:
+
+| `last_error` | Meaning |
+| --- | --- |
+| `Webhook URL resolves to a forbidden address` | The hostname resolved to a loopback, private, or link-local address |
+| `Webhook hostname could not be resolved` | DNS returned no answer for the hostname |
+| `Webhook URL must be HTTPS without credentials` | Scheme is not `https`, or the URL embeds a username or password |
+| `ENOTFOUND` / `ETIMEDOUT` / `ECONNREFUSED` | The connection could not be established |
+| `HTTP <status>` | Your endpoint responded with a non-2xx status |
 
 ---
 

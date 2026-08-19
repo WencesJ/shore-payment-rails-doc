@@ -20,6 +20,7 @@ Response shape and logging rules are in [Errors](../getting-started/errors.md).
 | `IDEMPOTENCY_IN_PROGRESS` | 409 | Identical request still running | Back off and retry the same request/key |
 | `DUPLICATE_REFERENCE` | 409 | Payout reference already belongs to another request | Retrieve the original or correct the new reference |
 | `DUPLICATE_SUSPECTED` | 409 | Matching payout inside the duplicate window | Confirm whether a second payout is intentional |
+| `ACCOUNT_NUMBER_UNAVAILABLE` | 409 | No free account number could be settled on for a new virtual account | Retry the same request and key; report if it persists |
 | `ACCOUNT_NOT_RESOLVED` | 422 | Bank/account combination could not be verified | Ask the customer to correct it |
 | `KYC_INVALID` | 422 | BVN or NIN did not verify | Correct data or follow the customer review process |
 | `KYC_MISMATCH` | 422 | BVN and NIN identities differ, or an intent is bound elsewhere | Stop and investigate identity data |

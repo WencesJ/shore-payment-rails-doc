@@ -29,15 +29,26 @@ Content-Type: application/json
 
 ```json
 {
-  "virtual_account_id": "f8f6b83f-74b9-4144-8662-af78a0cb8920",
+  "account_number": "9876543210",
   "amount": "100000.00",
   "asset": "NGN"
 }
 ```
 
+### Addressing the account
+
+| Field | | |
+| --- | --- | --- |
+| `account_number` | string, `^[0-9]{10}$` | The account number returned by [`POST /v1/virtual-accounts`](./virtual-accounts.md) — the same number a real payer transfers to. |
+| `virtual_account_id` | uuid, **deprecated** | Retained for integrations built against the original contract. Prefer `account_number`. |
+
+Supply exactly one of the two. Sending both or neither returns a validation error.
+
+The account must be `ACTIVE` and belong to the calling business. An account number outside your business returns `NOT_FOUND` (404) — it is not distinguishable from a number that does not exist, by design.
+
 ### Notes
 
-- Drives the same normalized deposit, ledger, transaction, balance, and webhook path used by real provider deposits.
+- Drives the same normalized deposit, ledger, transaction, balance, and webhook path used by real provider deposits. Addressing by account number is how a real provider webhook resolves an inbound credit, so the sandbox exercises the same resolution your live traffic will.
 - Live credentials receive `SANDBOX_ONLY` (503).
 - There is **no public live "create deposit" endpoint** — a live deposit begins with a real bank transfer.
 - Ensure test-deposit code cannot be invoked by the production workflow.
